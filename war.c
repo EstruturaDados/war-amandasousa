@@ -15,16 +15,30 @@
 // ============================================================================
 
 // Inclusão das bibliotecas padrão necessárias para entrada/saída, alocação de memória, manipulação de strings e tempo.
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
+#define MAX_TERRITORIOS 5
+#define TAM_STRING 30
 
 // --- Estrutura de Dados ---
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
+struct Territorio
+{
+    char nome[TAM_STRING];
+    char cor[TAM_STRING];
+    int tropas;
+};
 
 // --- Protótipos das Funções ---
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
+void limparBufferEntrada() {
+    int c;
+    while((c = getchar()) != '\n' && c != EOF);
+}
 // Funções de interface com o usuário:
 // Funções de lógica principal do jogo:
 // Função utilitária:
@@ -50,8 +64,49 @@ int main() {
 
     // 3. Limpeza:
     // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
+    
+    //DESAFIO NÍVEL NOVATO
 
+    // Declaração do vetor para armazenar os territórios
+    struct Territorio territorios[MAX_TERRITORIOS];
+    // variável de ajuda no looping
+    int i = 0;
+
+    // Looping para Cadastro de dados dos territórios
+    do {
+        printf("\nCadastro do território %d:\n", i + 1);
+
+        // Entrada do nome do território
+        printf("Digite o nome do território: ");
+        scanf(" %[^\n]", territorios[i].nome); 
+
+        // Entrada da cor do exército
+        printf("Digite a cor do exército: ");
+        scanf(" %s", territorios[i].cor); 
+
+        // Entrada da quantidade de tropas
+        printf("Digite a quantidade de tropas: ");
+        scanf("%d", &territorios[i].tropas);
+
+        i++;
+    } while (i < MAX_TERRITORIOS);
+
+    // Exibição dos dados cadastrados 
+    i = 0;
+    printf("\n--- Dados dos Territórios Cadastrados ---\n");
+    do {
+        printf("Território %d:\n", i + 1);
+        printf("Nome: %s\n", territorios[i].nome);
+        printf("Cor do Exército: %s\n", territorios[i].cor);
+        printf("Quantidade de Tropas: %d\n\n", territorios[i].tropas);
+        i++;
+    } while (i < MAX_TERRITORIOS);
+
+
+//Limpar o buffer de memoria
+    limparBufferEntrada();
     return 0;
+
 }
 
 // --- Implementação das Funções ---
