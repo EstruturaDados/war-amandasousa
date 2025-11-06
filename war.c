@@ -18,94 +18,129 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
-#define MAX_TERRITORIOS 5
 #define TAM_STRING 30
 
 // --- Estrutura de Dados ---
-// Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
-struct Territorio
-{
+// Definição da estrutura Territorio
+typedef struct {
     char nome[TAM_STRING];
     char cor[TAM_STRING];
     int tropas;
-};
+} Territorio;
 
-// --- Protótipos das Funções ---
-// Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
+// Função para cadastrar os territórios
+void cadastrarTerritorios(Territorio* mapa, int quantidade) {
+    for (int i = 0; i < quantidade; i++) {
+        printf("\nCadastro do território %d:\n", i + 1);
+        printf("Nome: ");
+        scanf(" %[^\n]", mapa[i].nome);
+        printf("Cor do exército: ");
+        scanf(" %s", mapa[i].cor);
+        printf("Quantidade de tropas: ");
+        scanf("%d", &mapa[i].tropas);
+    }
+}
+
+// Função para exibir os territórios
+void exibirTerritorios(Territorio* mapa, int quantidade) {
+    printf("\n--- Territórios ---\n");
+    for (int i = 0; i < quantidade; i++) {
+        printf("Território %d:\n", i + 1);
+        printf("Nome: %s\n", mapa[i].nome);
+        printf("Cor: %s\n", mapa[i].cor);
+        printf("Tropas: %d\n\n", mapa[i].tropas);
+    }
+}
+
+// Função de ataque entre dois territórios
+void atacar(Territorio* atacante, Territorio* defensor) {
+    if (strcmp(atacante->cor, defensor->cor) == 0) {
+        printf("Erro: não é possível atacar um território da mesma cor.\n");
+        return;
+    }
+
+    int dadoAtacante = rand() % 6 + 1; //gera um número inteiro aleatório entre 1 e 6
+    int dadoDefensor = rand() % 6 + 1; //gera um número inteiro aleatório entre 1 e 6
+
+    printf("\nAtaque de %s (%s) contra %s (%s)\n", atacante->nome, atacante->cor, defensor->nome, defensor->cor);
+    printf("Dado do atacante: %d\n", dadoAtacante);
+    printf("Dado do defensor: %d\n", dadoDefensor);
+
+    if (dadoAtacante > dadoDefensor) {
+        printf("Resultado: Vitória do atacante!\n");
+        strcpy(defensor->cor, atacante->cor);
+        defensor->tropas = atacante->tropas / 2;
+    } else {
+        printf("Resultado: Defesa bem sucedida! O atacante perdeu 1 tropa.\n");
+        if (atacante->tropas > 0) {
+            atacante->tropas--;
+        }
+    }
+}
+
 // Funções de setup e gerenciamento de memória:
+// Função para liberar a memória alocada
+void liberarMemoria(Territorio* mapa) {
+    free(mapa);
+}
+// Função para efetuar limpeza do buffer
 void limparBufferEntrada() {
     int c;
     while((c = getchar()) != '\n' && c != EOF);
 }
-// Funções de interface com o usuário:
-// Funções de lógica principal do jogo:
-// Função utilitária:
 
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
-    // 1. Configuração Inicial (Setup):
-    // - Define o locale para português.
-    // - Inicializa a semente para geração de números aleatórios com base no tempo atual.
-    // - Aloca a memória para o mapa do mundo e verifica se a alocação foi bem-sucedida.
-    // - Preenche os territórios com seus dados iniciais (tropas, donos, etc.).
-    // - Define a cor do jogador e sorteia sua missão secreta.
-
-    // 2. Laço Principal do Jogo (Game Loop):
-    // - Roda em um loop 'do-while' que continua até o jogador sair (opção 0) ou vencer.
-    // - A cada iteração, exibe o mapa, a missão e o menu de ações.
-    // - Lê a escolha do jogador e usa um 'switch' para chamar a função apropriada:
-    //   - Opção 1: Inicia a fase de ataque.
-    //   - Opção 2: Verifica se a condição de vitória foi alcançada e informa o jogador.
-    //   - Opção 0: Encerra o jogo.
-    // - Pausa a execução para que o jogador possa ler os resultados antes da próxima rodada.
-
-    // 3. Limpeza:
-    // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
     
-    //DESAFIO NÍVEL NOVATO
+    //DESAFIO NÍVEL AVENTUREIRO
 
-    // Declaração do vetor para armazenar os territórios
-    struct Territorio territorios[MAX_TERRITORIOS];
-    // variável de ajuda no looping
-    int i = 0;
+    srand(time(NULL)); // inicializa o gerador de números aleatórios
 
-    // Looping para Cadastro de dados dos territórios
+    int quantidade;
+    printf("Qual o número de territórios a serem cadastrados? ");
+    scanf("%d", &quantidade);
+
+    // Alocação dinâmica de memória para os territórios
+    Territorio* mapa = (Territorio*)calloc(quantidade, sizeof(Territorio));
+
+   //Verifica se a alocação de memória deu certo 
+    if (mapa == NULL) {
+        printf("Erro ao alocar memória.\n");
+        return 1;
+    }
+
+    cadastrarTerritorios(mapa, quantidade);
+    exibirTerritorios(mapa, quantidade);
+
+    char continuar;
     do {
-        printf("\nCadastro do território %d:\n", i + 1);
+        int iAtacante, iDefensor;
 
-        // Entrada do nome do território
-        printf("Digite o nome do território: ");
-        scanf(" %[^\n]", territorios[i].nome); 
+        printf("\nEscolha o número do território atacante (1 a %d): ", quantidade);
+        scanf("%d", &iAtacante);
+        printf("Escolha o número do território defensor (1 a %d): ", quantidade);
+        scanf("%d", &iDefensor);
 
-        // Entrada da cor do exército
-        printf("Digite a cor do exército: ");
-        scanf(" %s", territorios[i].cor); 
+        if (iAtacante < 1 || iAtacante > quantidade || iDefensor < 1 || iDefensor > quantidade) {
+            printf("Numero do território inválido.\n");
+        } else {
+            atacar(&mapa[iAtacante - 1], &mapa[iDefensor - 1]);
+            exibirTerritorios(mapa, quantidade);
+        }        
+            printf("Deseja realizar outro ataque? (s/n): ");
+            scanf(" %c", &continuar);
+        
+    } while (continuar == 's' || continuar == 'S');
 
-        // Entrada da quantidade de tropas
-        printf("Digite a quantidade de tropas: ");
-        scanf("%d", &territorios[i].tropas);
-
-        i++;
-    } while (i < MAX_TERRITORIOS);
-
-    // Exibição dos dados cadastrados 
-    i = 0;
-    printf("\n--- Dados dos Territórios Cadastrados ---\n");
-    do {
-        printf("Território %d:\n", i + 1);
-        printf("Nome: %s\n", territorios[i].nome);
-        printf("Cor do Exército: %s\n", territorios[i].cor);
-        printf("Quantidade de Tropas: %d\n\n", territorios[i].tropas);
-        i++;
-    } while (i < MAX_TERRITORIOS);
-
-
-//Limpar o buffer de memoria
+    liberarMemoria(mapa);
     limparBufferEntrada();
     return 0;
+
 
 }
 
@@ -149,5 +184,5 @@ int main() {
 // Implementa a lógica para cada tipo de missão (destruir um exército ou conquistar um número de territórios).
 // Retorna 1 (verdadeiro) se a missão foi cumprida, e 0 (falso) caso contrário.
 
-// limparBufferEntrada():
+
 // Função utilitária para limpar o buffer de entrada do teclado (stdin), evitando problemas com leituras consecutivas de scanf e getchar.
